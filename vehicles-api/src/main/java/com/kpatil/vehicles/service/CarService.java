@@ -5,6 +5,8 @@ import com.kpatil.vehicles.client.prices.PriceClient;
 import com.kpatil.vehicles.domain.Location;
 import com.kpatil.vehicles.domain.car.Car;
 import com.kpatil.vehicles.domain.car.CarRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.Optional;
  */
 @Service
 public class CarService {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(CarService.class);
 
     private final CarRepository carRepository;
     private final PriceClient priceClient;
@@ -34,6 +39,7 @@ public class CarService {
      * @return a list of all vehicles in the CarRepository
      */
     public List<Car> list() {
+        logger.info("Getting list of all cars ...");
         return carRepository.findAll();
     }
 
@@ -44,10 +50,7 @@ public class CarService {
      * @return the requested car's information, including location and price
      */
     public Car findById(Long id) {
-        /*
-         * Find the car by ID from the `repository` if it exists.
-         *   If it does not exist, throw a CarNotFoundException
-         */
+        logger.info("Looking for car with id " + id);
 
         Optional<Car> carOptional = carRepository.findById(id);
         if (carOptional.isEmpty()) {
@@ -55,21 +58,11 @@ public class CarService {
         }
 
         Car car = carOptional.get();
-
-        /*
-         * Note: The car class file uses @transient, meaning you will need to call
-         *   the pricing service each time to get the price.
-         */
         String price = priceClient.getPrice(id);
         car.setPrice(price);
 
-        /*
-         * Note: The Location class file also uses @transient for the address,
-         * meaning the Maps service needs to be called each time for the address.
-         */
         Location location = mapsClient.getAddress(car.getLocation());
         car.setLocation(location);
-
         return car;
     }
 
@@ -81,6 +74,7 @@ public class CarService {
      */
     public Car save(Car car) {
         if (car.getId() != null) {
+            logger.info("Updating info for car : " + car.getId());
             return carRepository.findById(car.getId())
                     .map(carToBeUpdated -> {
                         carToBeUpdated.setDetails(car.getDetails());
@@ -89,6 +83,7 @@ public class CarService {
                     }).orElseThrow(CarNotFoundException::new);
         }
 
+        logger.info("Creating new car record ...");
         return carRepository.save(car);
     }
 
@@ -98,16 +93,11 @@ public class CarService {
      * @param id the ID number of the car to delete
      */
     public void delete(Long id) {
-        /**
-         * TODO: Find the car by ID from the `repository` if it exists.
-         *   If it does not exist, throw a CarNotFoundException
-         */
-
-
-        /**
-         * TODO: Delete the car from the repository.
-         */
-
-
+        logger.info("Trying to delete car with id " + id);
+        Optional<Car> carOptional = carRepository.findById(id);
+        if (carOptional.isEmpty()) {
+            throw new CarNotFoundException("Car not found for id : " + id);
+        }
+        carRepository.delete(carOptional.get());
     }
 }
