@@ -3,6 +3,8 @@ package com.kpatil.vehicles.api;
 
 import com.kpatil.vehicles.domain.car.Car;
 import com.kpatil.vehicles.service.CarService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,8 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RequestMapping("/cars")
 class CarController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CarController.class);
+
     private final CarService carService;
     private final CarResourceAssembler assembler;
 
@@ -39,6 +43,7 @@ class CarController {
      */
     @GetMapping
     Resources<Resource<Car>> list() {
+        logger.info("Received request to get all cars ...");
         List<Resource<Car>> resources = carService.list().stream().map(assembler::toResource)
                 .collect(Collectors.toList());
         return new Resources<>(resources,
@@ -53,11 +58,7 @@ class CarController {
      */
     @GetMapping("/{id}")
     Resource<Car> get(@PathVariable Long id) {
-        /**
-         * TODO: Use the `findById` method from the Car Service to get car information.
-         * TODO: Use the `assembler` on that car and return the resulting output.
-         *   Update the first line as part of the above implementing.
-         */
+        logger.info("Received request to get car for id = " + id);
         Car car = carService.findById(id);
         return assembler.toResource(car);
     }
