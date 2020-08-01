@@ -27,7 +27,7 @@ public class PriceRepositoryTest {
 
     @Test
     public void test_save_FindById_Update_Delete() {
-        Price price = new Price("USD", BigDecimal.valueOf(27999.98));
+        Price price = new Price(null, "USD", BigDecimal.valueOf(27999.98), 1L);
         price = priceRepository.save(price); // POST
         Long id = price.getId();
         Optional<Price> priceAdded = priceRepository.findById(id);
