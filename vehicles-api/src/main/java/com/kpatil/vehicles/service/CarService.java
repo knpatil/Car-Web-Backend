@@ -77,6 +77,7 @@ public class CarService {
             logger.info("Updating info for car : " + car.getId());
             return carRepository.findById(car.getId())
                     .map(carToBeUpdated -> {
+                        carToBeUpdated.setCondition(car.getCondition());
                         carToBeUpdated.setDetails(car.getDetails());
                         carToBeUpdated.setLocation(car.getLocation());
                         return carRepository.save(carToBeUpdated);

@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class Price {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String currency;
