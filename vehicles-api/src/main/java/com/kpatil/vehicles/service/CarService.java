@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Implements the car service create, read, update or delete
@@ -40,7 +41,15 @@ public class CarService {
      */
     public List<Car> list() {
         logger.info("Getting list of all cars ...");
-        return carRepository.findAll();
+        return carRepository.findAll().stream()
+                .map(this::getPriceAndLocation)
+                .collect(Collectors.toList());
+    }
+
+    private Car getPriceAndLocation(Car car) {
+        car.setPrice(priceClient.getPrice(car.getId()));
+        car.setLocation(mapsClient.getAddress(car.getLocation()));
+        return car;
     }
 
     /**
