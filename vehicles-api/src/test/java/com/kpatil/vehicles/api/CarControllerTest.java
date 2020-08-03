@@ -93,6 +93,35 @@ public class CarControllerTest {
     }
 
     /**
+     * Tests for successful update of a car in the system
+     *
+     * @throws Exception when car creation fails in the system
+     */
+    @Test
+    public void updateCar() throws Exception {
+        Car car = getCar();
+        // update car fields
+        car.setCondition(Condition.NEW);
+        car.getDetails().setExternalColor("red");
+        car.getDetails().setManufacturer(new Manufacturer(999, "Ferrari"));
+
+        mvc.perform(
+                put(new URI("/cars/1"))
+                        .content(json.write(car).getJson())
+                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<Car> carCaptor = ArgumentCaptor.forClass(Car.class);
+        verify(carService, times(1)).save(carCaptor.capture());
+
+        assertThat(carCaptor.getValue().getCondition()).isEqualTo(Condition.NEW);
+        assertThat(carCaptor.getValue().getDetails().getExternalColor()).isEqualTo("red");
+        assertThat(carCaptor.getValue().getDetails().getManufacturer().getCode()).isEqualTo(999);
+        assertThat(carCaptor.getValue().getDetails().getManufacturer().getName()).isEqualTo("Ferrari");
+    }
+
+    /**
      * Tests if the read operation appropriately returns a list of vehicles.
      *
      * @throws Exception if the read operation of the vehicle list fails
